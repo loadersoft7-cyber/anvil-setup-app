@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win"
+    "dist": "electron-builder --win --publish=never"
   },
   "devDependencies": {
     "electron": "^31.0.0",
@@ -16,6 +16,7 @@
   "build": {
     "appId": "com.forgeandco.anvilsetup",
     "productName": "Anvil Setup",
+    "publish": null,
     "directories": {
       "output": "dist"
     },

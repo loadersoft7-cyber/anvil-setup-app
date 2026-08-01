@@ -305,7 +305,7 @@
         </div>
         <div class="eta">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.6"/></svg>
-          <span id="etaText">ETA ~19s</span>
+          <span id="etaText">ETA ~--s</span>
         </div>
       </div>
 
@@ -341,7 +341,7 @@
     <div class="summary-box">
       <div class="summary-row"><span class="k">Installed to</span><span class="v">D:/Apps/Forge/Anvil</span></div>
       <div class="summary-row"><span class="k">Version</span><span class="v">v3.1.0-stable</span></div>
-      <div class="summary-row"><span class="k">Install time</span><span class="v">21s</span></div>
+      <div class="summary-row"><span class="k">Install time</span><span class="v" id="completeTime">--s</span></div>
       <div class="summary-row"><span class="k">Integrity check</span><span class="v ok">Passed</span></div>
     </div>
 
@@ -358,6 +358,10 @@
 // Единый случайный размер пакета (МБ) для окон WELCOME и INSTALL
 const PACKAGE_SIZE_MB = Math.floor(Math.random() * (480 - 60 + 1)) + 60;
 document.getElementById('welcomeSize').textContent = PACKAGE_SIZE_MB + ' MB';
+
+// Случайное время установки (15–60 сек), используется в ETA и экране COMPLETE
+const INSTALL_DURATION_S = Math.floor(Math.random() * (60 - 15 + 1)) + 15;
+document.getElementById('etaText').textContent = 'ETA ~' + INSTALL_DURATION_S + 's';
 
 function setSteps(idx){
   document.querySelectorAll('.step').forEach((el,i)=>{
@@ -416,8 +420,16 @@ function runInstall(){
   ];
   let stageIdx = 0;
 
+  // Шаг прогресса: чтобы за ~INSTALL_DURATION_S секунд пройти 100%
+  // Интервал 450мс → тиков = INSTALL_DURATION_S * 1000 / 450
+  const ticksTotal = (INSTALL_DURATION_S * 1000) / 450;
+  const stepBase = 97 / ticksTotal; // 97% оставшегося диапазона (стартуем с 3%)
+  let elapsed = 0;
+
   installTimer = setInterval(()=>{
-    progress += Math.random()*6 + 2;
+    elapsed++;
+    const jitter = (Math.random() - 0.5) * stepBase * 0.4;
+    progress += stepBase + jitter;
     if(progress >= 100){ progress = 100; }
 
     fill.style.width = progress + '%';
@@ -425,7 +437,7 @@ function runInstall(){
     const doneMb = Math.round(total * (progress/100));
     done.textContent = doneMb + ' / ' + total + ' MB';
     speed.textContent = (8 + Math.random()*6).toFixed(1) + ' MB/s';
-    const remaining = Math.max(0, Math.round((100-progress)/4));
+    const remaining = Math.max(0, Math.round(INSTALL_DURATION_S * (1 - progress/100)));
     eta.textContent = progress >= 100 ? 'Done' : ('ETA ~' + remaining + 's');
 
     while(stageIdx < stages.length && progress >= stages[stageIdx].at){
@@ -445,6 +457,7 @@ function runInstall(){
       clearInterval(installTimer);
       status.textContent = 'Done';
       label.textContent = 'Finalized';
+      document.getElementById('completeTime').textContent = INSTALL_DURATION_S + 's';
       setTimeout(()=>{ goTo(3); }, 700);
     }
   }, 450);

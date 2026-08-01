@@ -247,7 +247,7 @@
     <div class="info-card">
       <div class="info-col"><div class="k">Publisher</div><div class="v">Forge & Co</div></div>
       <div class="info-col"><div class="k">Build version</div><div class="v">v3.1.0-stable</div></div>
-      <div class="info-col"><div class="k">Size</div><div class="v">214 MB</div></div>
+      <div class="info-col"><div class="k">Size</div><div class="v" id="welcomeSize">214 MB</div></div>
     </div>
   </div>
 
@@ -355,6 +355,10 @@
 </div>
 
 <script>
+// Единый случайный размер пакета (МБ) для окон WELCOME и INSTALL
+const PACKAGE_SIZE_MB = Math.floor(Math.random() * (480 - 60 + 1)) + 60;
+document.getElementById('welcomeSize').textContent = PACKAGE_SIZE_MB + ' MB';
+
 function setSteps(idx){
   document.querySelectorAll('.step').forEach((el,i)=>{
     el.classList.remove('active','done');
@@ -397,7 +401,7 @@ function runInstall(){
   const logBox = document.getElementById('logBox');
   const logCount = document.getElementById('logCount');
 
-  const total = 214;
+  const total = PACKAGE_SIZE_MB;
   let progress = 3;
   let logEntries = 1;
 
